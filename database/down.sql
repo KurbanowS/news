@@ -1,0 +1,1 @@
+\i database/migrations/news.down.sql
