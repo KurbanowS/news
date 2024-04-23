@@ -14,7 +14,7 @@ const sqlNewsFields = `n.id, n.article, n.body`
 const sqlNewsInsert = `insert into news`
 const sqlNewsSelect = `select ` + sqlNewsFields + ` from news n where n.id = ANY($1::int[])`
 const sqlNewsSelectMany = `select ` + sqlNewsFields + `, count(*) over() as total from news n where n.id=n.id limit $1 offset $2`
-const sqlNewsUpdate = `set news n where id=id`
+const sqlNewsUpdate = `update news n set id=id`
 const sqlNewsDelete = `delete from news n where id = ANY($1::int[])`
 
 func scanNews(rows pgx.Row, m *models.News, addcolumns ...interface{}) (err error) {
@@ -93,9 +93,8 @@ func (d *PgxStore) NewsCreate(model *models.News) (*models.News, error) {
 
 func (d *PgxStore) NewsUpdate(model *models.News) (*models.News, error) {
 	qs, args := NewsUpdateQuery(model)
-	qs += " RETURNING id"
 	err := d.runQuery(context.Background(), func(tx *pgxpool.Conn) (err error) {
-		_, err = tx.Query(context.Background(), qs, args)
+		_, err = tx.Query(context.Background(), qs, args...)
 		return
 	})
 	if err != nil {
@@ -163,7 +162,7 @@ func NewsListBuildQuery(m models.NewsFilterRequest, args []interface{}) (string,
 		args = append(args, *m.ID)
 		wheres += "and n.id=$" + strconv.Itoa(len(args))
 	}
-	wheres += "order by n.id desc"
+	wheres += " order by n.id desc"
 	qs := sqlNewsSelectMany
 	qs = strings.ReplaceAll(qs, "n.id=n.id", "n.id=n.id"+wheres+" ")
 	return qs, args

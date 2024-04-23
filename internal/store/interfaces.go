@@ -9,4 +9,10 @@ type IStore interface {
 	NewsCreate(model *models.News) (*models.News, error)
 	NewsUpdate(model *models.News) (*models.News, error)
 	NewsDelete(items []*models.News) ([]*models.News, error)
+
+	LikesCreate(newsId uint) error
+	LikesDelete(newsId uint) error
+
+	DislikesCreate(newsId uint) error
+	DislikesDelete(newsId uint) error
 }
