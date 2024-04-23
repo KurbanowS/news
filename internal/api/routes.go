@@ -20,6 +20,7 @@ func Routes(routes *gin.Engine) {
 	api := routes.Group("/api")
 	{
 		NewsRoutes(api)
+		RatingRoutes(api)
 	}
 
 }
